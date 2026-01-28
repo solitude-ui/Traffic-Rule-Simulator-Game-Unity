@@ -51,6 +51,7 @@ public class CarController : MonoBehaviour
         Steering();
         ApplyBreaks();
         PowerSteering();
+        Debug.Log(CarSpeed());
        
     }
 
@@ -124,7 +125,11 @@ public class CarController : MonoBehaviour
         }
     }
 
-    
+    public float CarSpeed()
+    {
+        float speed=carRigidbody.velocity.magnitude*2.23693629f;
+        return speed;
+    }
 
 }
 
