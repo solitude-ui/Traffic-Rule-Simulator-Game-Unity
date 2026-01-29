@@ -30,6 +30,8 @@ public class CarController : MonoBehaviour
     float verticalInput;
 
     float horizontalInput;
+
+    [SerializeField] UIManager uiManager;
     // Start is called before the first frame update
     void Start()
     {
@@ -129,6 +131,15 @@ public class CarController : MonoBehaviour
     {
         float speed=carRigidbody.velocity.magnitude*2.23693629f;
         return speed;
+    }
+
+    private void OnCollisionEnter(Collision collision)
+    {
+        if(collision.gameObject.tag=="TrafficVehicle")
+        {
+            Debug.Log("Collision with Traffic Vehicle");
+            uiManager.GameOver();
+        }
     }
 
 }

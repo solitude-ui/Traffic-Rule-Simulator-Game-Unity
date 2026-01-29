@@ -4,5 +4,8 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/Scenes/EndlessCity.unity
+    guid: 74a08fdc56f69af4aa0fe44b07bead2e
   m_configObjects: {}

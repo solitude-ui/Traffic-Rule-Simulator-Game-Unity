@@ -5,7 +5,7 @@ using UnityEngine;
 public class FixedCameraView : MonoBehaviour
 {
     [SerializeField]private Transform PlayerCarTransform;
-    [SerializeField] float offset=-8;
+    [SerializeField] float offset=-4;
     // Start is called before the first frame update
     void Start()
     {
