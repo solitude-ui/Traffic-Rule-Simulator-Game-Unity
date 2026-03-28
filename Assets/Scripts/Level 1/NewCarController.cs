@@ -20,6 +20,22 @@ public class NewCarController : MonoBehaviour
     public float lateralStability = 3f;
     public float coastingDrag = 0.35f;
 
+    [Header("Aerodynamics")]
+    public float downforceCoefficient = 1.5f;
+
+    [Header("High Speed Stability")]
+    public float minAngularDrag = 0.5f;
+    public float maxAngularDrag = 8f;
+    public float stabilityMaxSpeed = 200f;
+    public float minHighSpeedSteerAngle = 10f;
+
+    [Header("Anti Roll Bar")]
+    public float antiRollForce = 8000f;
+
+    [Header("Wheel Friction")]
+    public float baseSidewaysStiffness = 1f;
+    public float highSpeedSidewaysStiffness = 2.5f;
+
     [Header("Wheel Colliders")]
     public WheelCollider frontLeftWheel;
     public WheelCollider frontRightWheel;
@@ -65,6 +81,11 @@ public class NewCarController : MonoBehaviour
         HandleBraking();
         ApplyPowerSteering();
         UpdateWheels();
+        ApplyDownforce();
+        UpdateAngularDrag();
+        UpdateWheelFriction();
+        ApplyAntiRollBar(frontLeftWheel, frontRightWheel);
+        ApplyAntiRollBar(rearLeftWheel, rearRightWheel);
     }
 
     void GetInput()
@@ -98,9 +119,12 @@ public class NewCarController : MonoBehaviour
 
     void HandleSteering()
     {
-        float targetSteerAngle = maxSteerAngle * horizontalInput;
+        float speed = CarSpeed();
+        float speedFactor = GetSpeedFactor(speed);
+        float effectiveSteerAngle = Mathf.Lerp(maxSteerAngle, minHighSpeedSteerAngle, speedFactor);
+        float targetSteerAngle = effectiveSteerAngle * horizontalInput;
         float steerSpeed = Mathf.Abs(horizontalInput) > 0.01f ? steeringResponse : steeringReturnSpeed;
-        currentSteerAngle = Mathf.MoveTowards(currentSteerAngle, targetSteerAngle, steerSpeed * maxSteerAngle * Time.fixedDeltaTime);
+        currentSteerAngle = Mathf.MoveTowards(currentSteerAngle, targetSteerAngle, steerSpeed * effectiveSteerAngle * Time.fixedDeltaTime);
 
         frontLeftWheel.steerAngle = currentSteerAngle;
         frontRightWheel.steerAngle = currentSteerAngle;
@@ -129,7 +153,9 @@ public class NewCarController : MonoBehaviour
     void ApplyPowerSteering()
     {
         Vector3 localVelocity = transform.InverseTransformDirection(rb.velocity);
-        Vector3 stabilizingForce = -transform.right * localVelocity.x * lateralStability;
+        float speed = CarSpeed();
+        float speedStabilityMultiplier = 1f + GetSpeedFactor(speed) * 2f;
+        Vector3 stabilizingForce = -transform.right * localVelocity.x * lateralStability * speedStabilityMultiplier;
         rb.AddForce(stabilizingForce, ForceMode.Acceleration);
 
         if (Mathf.Abs(horizontalInput) > 0.01f) return;
@@ -162,6 +188,77 @@ public class NewCarController : MonoBehaviour
 
         wheelTransform.position = pos;
         wheelTransform.rotation = rot;
+    }
+
+    void ApplyDownforce()
+    {
+        float speed = CarSpeed();
+        rb.AddForce(-transform.up * downforceCoefficient * speed * speed, ForceMode.Force);
+    }
+
+    void UpdateAngularDrag()
+    {
+        float speed = CarSpeed();
+        rb.angularDrag = Mathf.Lerp(minAngularDrag, maxAngularDrag, GetSpeedFactor(speed));
+    }
+
+    void UpdateWheelFriction()
+    {
+        float speed = CarSpeed();
+        float speedFactor = GetSpeedFactor(speed);
+        float sidewaysStiffness = Mathf.Lerp(baseSidewaysStiffness, highSpeedSidewaysStiffness, speedFactor);
+
+        UpdateSingleWheelFriction(frontLeftWheel, sidewaysStiffness);
+        UpdateSingleWheelFriction(frontRightWheel, sidewaysStiffness);
+        UpdateSingleWheelFriction(rearLeftWheel, sidewaysStiffness);
+        UpdateSingleWheelFriction(rearRightWheel, sidewaysStiffness);
+    }
+
+    void UpdateSingleWheelFriction(WheelCollider wheelCollider, float sidewaysStiffness)
+    {
+        if (wheelCollider == null) return;
+
+        WheelFrictionCurve sidewaysFriction = wheelCollider.sidewaysFriction;
+        sidewaysFriction.stiffness = sidewaysStiffness;
+        wheelCollider.sidewaysFriction = sidewaysFriction;
+    }
+
+    void ApplyAntiRollBar(WheelCollider leftWheel, WheelCollider rightWheel)
+    {
+        if (leftWheel == null || rightWheel == null) return;
+
+        float leftTravel = 1f;
+        float rightTravel = 1f;
+
+        bool leftGrounded = leftWheel.GetGroundHit(out WheelHit leftHit);
+        if (leftGrounded)
+        {
+            leftTravel = (-leftWheel.transform.InverseTransformPoint(leftHit.point).y - leftWheel.radius) / leftWheel.suspensionDistance;
+        }
+
+        bool rightGrounded = rightWheel.GetGroundHit(out WheelHit rightHit);
+        if (rightGrounded)
+        {
+            rightTravel = (-rightWheel.transform.InverseTransformPoint(rightHit.point).y - rightWheel.radius) / rightWheel.suspensionDistance;
+        }
+
+        float antiRoll = (leftTravel - rightTravel) * antiRollForce;
+
+        if (leftGrounded)
+        {
+            rb.AddForceAtPosition(leftWheel.transform.up * -antiRoll, leftWheel.transform.position, ForceMode.Force);
+        }
+
+        if (rightGrounded)
+        {
+            rb.AddForceAtPosition(rightWheel.transform.up * antiRoll, rightWheel.transform.position, ForceMode.Force);
+        }
+    }
+
+    float GetSpeedFactor(float speed)
+    {
+        if (stabilityMaxSpeed <= 0f) return 1f;
+        return Mathf.Clamp01(speed / stabilityMaxSpeed);
     }
 
     public float CarSpeed()
