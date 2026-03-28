@@ -4,6 +4,9 @@ using System.Collections;
 
 public class TrafficZone : MonoBehaviour
 {
+    private const string ZoneEntryNotificationMessage = "Pass the traffic signal only when the light turns green.";
+    private const float ZoneEntryNotificationDuration = 3.5f;
+
     [Header("Traffic Light")]
     [SerializeField] private TrafficLight trafficLight;
 
@@ -23,7 +26,15 @@ public class TrafficZone : MonoBehaviour
     [Header("Penalty")]
     [SerializeField] private UIManager uiManager;
 
+    [Header("Valid Exit Rule")]
+    [SerializeField] private float exitEdgeTolerance = 0.25f;
+
     private bool playerInside = false;
+    private bool hasShownZoneEntryNotification = false;
+    private float entryXPosition = 0f;
+    private bool enteredFromFront = false;
+    private float zoneCenterX = 0f;
+    private float zonePositiveEdgeX = 0f;
     private BoxCollider boxCollider;
     private Transform playerRoot;
     private Coroutine warningCoroutine;
@@ -44,6 +55,8 @@ public class TrafficZone : MonoBehaviour
         {
             boxCollider.enabled = true;
             boxCollider.isTrigger = true;
+            zoneCenterX = boxCollider.bounds.center.x;
+            zonePositiveEdgeX = boxCollider.bounds.max.x;
             Debug.Log("TrafficZone: Box Collider is enabled and set as trigger.");
         }
 
@@ -262,12 +275,22 @@ public class TrafficZone : MonoBehaviour
 
         if (IsPlayerCollider(other))
         {
+            if (playerInside) return;
+
             Debug.Log("TrafficZone: Player car entered traffic zone.");
             playerInside = true;
             playerRoot = other.transform.root;
+            entryXPosition = playerRoot.position.x;
+            enteredFromFront = entryXPosition > zoneCenterX;
 
             if (uiPanel != null)
                 uiPanel.SetActive(true);
+
+            if (uiManager != null && !hasShownZoneEntryNotification)
+            {
+                uiManager.ShowNotification(ZoneEntryNotificationMessage, ZoneEntryNotificationDuration);
+                hasShownZoneEntryNotification = true;
+            }
 
             UpdateUI();
         }
@@ -279,10 +302,18 @@ public class TrafficZone : MonoBehaviour
 
         if (IsPlayerCollider(other))
         {
-            ApplyTrafficZoneScoreResult();
+            if (!playerInside) return;
+
+            if (ShouldApplyTrafficRule(other.transform.root.position))
+                ApplyTrafficZoneScoreResult();
+            else
+                Debug.Log($"TrafficZone: Rule not applied. Entry X = {entryXPosition:0.##}, Exit X = {other.transform.root.position.x:0.##}, Positive edge X = {zonePositiveEdgeX:0.##}, tolerance = {exitEdgeTolerance:0.##}.", this);
+
             Debug.Log("TrafficZone: Player car left traffic zone.");
             playerInside = false;
             playerRoot = null;
+            entryXPosition = 0f;
+            enteredFromFront = false;
             StopWarningBlink();
 
             if (uiPanel != null)
@@ -294,12 +325,38 @@ public class TrafficZone : MonoBehaviour
 
     private void ApplyTrafficZoneScoreResult()
     {
-        if (trafficLight == null || uiManager == null) return;
+        if (trafficLight == null || uiManager == null)
+        {
+            Debug.LogWarning("TrafficZone: Could not apply traffic zone result because TrafficLight or UIManager is missing.", this);
+            return;
+        }
 
         TrafficLight.State currentState = trafficLight.GetState();
         if (currentState == TrafficLight.State.Red || currentState == TrafficLight.State.Yellow)
+        {
+            Debug.Log($"TrafficZone: Rule completed on {currentState}. Applying -50 penalty.", this);
             uiManager.ApplyTrafficViolationPenalty();
+        }
         else if (currentState == TrafficLight.State.Green)
+        {
+            Debug.Log("TrafficZone: Rule completed on Green. Applying +50 reward.", this);
             uiManager.ApplyTrafficSuccessReward();
+        }
+    }
+
+    private bool ShouldApplyTrafficRule(Vector3 worldPosition)
+    {
+        float exitXPosition = worldPosition.x;
+        bool exitedFromFront = exitXPosition > zoneCenterX;
+        bool enteredFromBack = !enteredFromFront;
+        bool crossedThrough = (enteredFromFront && !exitedFromFront) || (enteredFromBack && exitedFromFront);
+        bool exitedThroughPositiveXFace = exitXPosition >= zonePositiveEdgeX - exitEdgeTolerance;
+
+        Debug.Log($"TrafficZone: Checking rule. Entry X = {entryXPosition:0.##}, Exit X = {exitXPosition:0.##}, zoneCenterX = {zoneCenterX:0.##}, positiveEdgeX = {zonePositiveEdgeX:0.##}, enteredFromFront = {enteredFromFront}, exitedFromFront = {exitedFromFront}, crossedThrough = {crossedThrough}, exitedThroughPositiveXFace = {exitedThroughPositiveXFace}.", this);
+
+        if (!crossedThrough)
+            return false;
+
+        return exitedThroughPositiveXFace;
     }
 }
