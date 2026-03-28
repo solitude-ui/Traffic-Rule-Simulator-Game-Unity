@@ -2670,6 +2670,7 @@ GameObject:
   - component: {fileID: 1526564051}
   - component: {fileID: 1526564050}
   - component: {fileID: 1526564049}
+  - component: {fileID: 1526564052}
   m_Layer: 0
   m_Name: UI Manager
   m_TagString: Untagged
@@ -2684,20 +2685,20 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1526564048}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 52a652af81df0764d8a22ee33f0a5f2e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   speedText: {fileID: 1823157593}
-  carController: {fileID: 793345391702730910}
+  carController: {fileID: 0}
   carTransform: {fileID: 7114292008140848741}
   DistanceText: {fileID: 2053289105}
   ScoreText: {fileID: 276412203}
+  MaximumSpeedText: {fileID: 772788692}
   GameOverPanel: {fileID: 1808533023}
   TotalScoreText: {fileID: 1890356293}
   TotalDistanceText: {fileID: 433275473}
-  MaximumSpeedText: {fileID: 772788692}
   SpeedIcon: {fileID: 1405128424}
   DistanceIcon: {fileID: 1570285099}
   ScoreIcon: {fileID: 583393545}
@@ -2728,6 +2729,30 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1526564052
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1526564048}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1e91533e5084014abca9fc39523fbb6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  speedText: {fileID: 1823157593}
+  carController: {fileID: 793345391702730910}
+  carTransform: {fileID: 7114292008140848741}
+  DistanceText: {fileID: 2053289105}
+  ScoreText: {fileID: 276412203}
+  MaximumSpeedText: {fileID: 1823157593}
+  GameOverPanel: {fileID: 1808533023}
+  TotalScoreText: {fileID: 1890356293}
+  TotalDistanceText: {fileID: 374550362}
+  SpeedIcon: {fileID: 1405128424}
+  DistanceIcon: {fileID: 1570285099}
+  ScoreIcon: {fileID: 583393545}
 --- !u!1 &1570285099
 GameObject:
   m_ObjectHideFlags: 0
@@ -4203,7 +4228,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 704f793573b064847a3472cedf5e020f, type: 3}
+  m_Script: {fileID: 11500000, guid: 5ea01a93107b3e648b385184578c0679, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!4 &3288009801764326499 stripped
@@ -4314,6 +4339,10 @@ PrefabInstance:
     - target: {fileID: 5324213867600118882, guid: 7ffa8f0cc42090d43bf2362a2635a4d8, type: 3}
       propertyPath: m_Name
       value: Player Car Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 7153180965006154926, guid: 7ffa8f0cc42090d43bf2362a2635a4d8, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 7706672107386999643, guid: 7ffa8f0cc42090d43bf2362a2635a4d8, type: 3}
       propertyPath: m_LocalPosition.x

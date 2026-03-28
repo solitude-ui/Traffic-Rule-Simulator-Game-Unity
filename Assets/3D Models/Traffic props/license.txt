@@ -1,0 +1,11 @@
+Model Information:
+* title:	Traffic signs
+* source:	https://sketchfab.com/3d-models/traffic-signs-7efee0295db544b7bcff19359f2e27a1
+* author:	Spider man (https://sketchfab.com/spider-models)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Traffic signs" (https://sketchfab.com/3d-models/traffic-signs-7efee0295db544b7bcff19359f2e27a1) by Spider man (https://sketchfab.com/spider-models) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
