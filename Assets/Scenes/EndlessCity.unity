@@ -2697,11 +2697,23 @@ MonoBehaviour:
   ScoreText: {fileID: 276412203}
   MaximumSpeedText: {fileID: 772788692}
   GameOverPanel: {fileID: 1808533023}
-  TotalScoreText: {fileID: 1890356293}
-  TotalDistanceText: {fileID: 433275473}
+  finalScoreText: {fileID: 0}
+  finalMaximumSpeedText: {fileID: 0}
+  arrowStar: {fileID: 0}
+  trafficStar: {fileID: 0}
+  speedStar: {fileID: 0}
+  tryAgainButton: {fileID: 0}
   SpeedIcon: {fileID: 1405128424}
   DistanceIcon: {fileID: 1570285099}
   ScoreIcon: {fileID: 583393545}
+  plus50Image: {fileID: 0}
+  minus50Image: {fileID: 0}
+  scorePopupDuration: 1.5
+  notificationPanel: {fileID: 0}
+  notificationText: {fileID: 0}
+  notificationDuration: 3.5
+  splashRoot: {fileID: 0}
+  splashDisplayDuration: 1
 --- !u!114 &1526564050
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2742,7 +2754,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speedText: {fileID: 1823157593}
-  carController: {fileID: 793345391702730910}
+  carController: {fileID: 0}
   carTransform: {fileID: 7114292008140848741}
   DistanceText: {fileID: 2053289105}
   ScoreText: {fileID: 276412203}

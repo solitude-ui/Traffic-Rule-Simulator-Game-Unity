@@ -335,11 +335,13 @@ public class TrafficZone : MonoBehaviour
         if (currentState == TrafficLight.State.Red || currentState == TrafficLight.State.Yellow)
         {
             Debug.Log($"TrafficZone: Rule completed on {currentState}. Applying -50 penalty.", this);
+            uiManager.MarkTrafficZoneObjective(false);
             uiManager.ApplyTrafficViolationPenalty();
         }
         else if (currentState == TrafficLight.State.Green)
         {
             Debug.Log("TrafficZone: Rule completed on Green. Applying +50 reward.", this);
+            uiManager.MarkTrafficZoneObjective(true);
             uiManager.ApplyTrafficSuccessReward();
         }
     }

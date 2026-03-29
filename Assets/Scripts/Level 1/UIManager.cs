@@ -26,8 +26,12 @@ public class UIManager : MonoBehaviour
 
     [Header("Game Over UI")]
     [SerializeField] private GameObject GameOverPanel;
-    [SerializeField] private TextMeshProUGUI TotalScoreText;
-    [SerializeField] private TextMeshProUGUI TotalDistanceText;
+    [SerializeField] private TextMeshProUGUI finalScoreText;
+    [SerializeField] private TextMeshProUGUI finalMaximumSpeedText;
+    [SerializeField] private GameObject arrowStar;
+    [SerializeField] private GameObject trafficStar;
+    [SerializeField] private GameObject speedStar;
+    [SerializeField] private Button tryAgainButton;
 
     [Header("Icons")]
     [SerializeField] private GameObject SpeedIcon;
@@ -58,6 +62,9 @@ public class UIManager : MonoBehaviour
     private Coroutine scorePopupCoroutine;
     private Coroutine notificationCoroutine;
     private CanvasGroup splashCanvasGroup;
+    private bool arrowObjectiveCompleted;
+    private bool trafficZoneCompletedCorrectly;
+    private bool speedZoneCompletedCorrectly;
 
     void Awake()
     {
@@ -69,11 +76,21 @@ public class UIManager : MonoBehaviour
 
     void Start()
     {
-        GameOverPanel.SetActive(false);
+        AutoAssignGameOverUI();
+        AutoAssignHudIcons();
+        WireTryAgainButton();
 
-        SpeedIcon.SetActive(true);
-        DistanceIcon.SetActive(true);
-        ScoreIcon.SetActive(true);
+        if (GameOverPanel != null)
+            GameOverPanel.SetActive(false);
+
+        if (SpeedIcon != null)
+            SpeedIcon.SetActive(true);
+
+        if (DistanceIcon != null)
+            DistanceIcon.SetActive(true);
+
+        if (ScoreIcon != null)
+            ScoreIcon.SetActive(true);
 
         if (carController == null)
             Debug.LogError("NewCarController not assigned!");
@@ -136,14 +153,29 @@ public class UIManager : MonoBehaviour
     {
         Time.timeScale = 0f;
 
-        GameOverPanel.SetActive(true);
+        AutoAssignGameOverUI();
+        AutoAssignHudIcons();
+        WireTryAgainButton();
 
-        SpeedIcon.SetActive(false);
-        DistanceIcon.SetActive(false);
-        ScoreIcon.SetActive(false);
+        if (GameOverPanel != null)
+            GameOverPanel.SetActive(true);
 
-        TotalScoreText.text = score.ToString("0");
-        TotalDistanceText.text = distance.ToString("0.00") + " km";
+        if (SpeedIcon != null)
+            SpeedIcon.SetActive(false);
+
+        if (DistanceIcon != null)
+            DistanceIcon.SetActive(false);
+
+        if (ScoreIcon != null)
+            ScoreIcon.SetActive(false);
+
+        if (finalScoreText != null)
+            finalScoreText.text = score.ToString("00");
+
+        if (finalMaximumSpeedText != null)
+            finalMaximumSpeedText.text = maximumSpeed.ToString("0") + "KM/H";
+
+        RefreshStars();
     }
 
     public void ApplyTrafficViolationPenalty()
@@ -160,6 +192,21 @@ public class UIManager : MonoBehaviour
         ScoreText.text = score.ToString("0");
         Debug.Log($"UIManager: Traffic rule completed. +{TrafficSuccessReward:0} points. Current score: {score:0}");
         ShowScorePopup(plus50Image);
+    }
+
+    public void MarkArrowObjectiveComplete()
+    {
+        arrowObjectiveCompleted = true;
+    }
+
+    public void MarkTrafficZoneObjective(bool completedCorrectly)
+    {
+        trafficZoneCompletedCorrectly = completedCorrectly;
+    }
+
+    public void MarkSpeedZoneObjective(bool completedCorrectly)
+    {
+        speedZoneCompletedCorrectly = completedCorrectly;
     }
 
     public void TryAgain()
@@ -238,6 +285,113 @@ public class UIManager : MonoBehaviour
         splashCanvasGroup = splashRoot.GetComponent<CanvasGroup>();
         if (splashCanvasGroup == null)
             splashCanvasGroup = splashRoot.AddComponent<CanvasGroup>();
+    }
+
+    private void AutoAssignGameOverUI()
+    {
+        GameObject uiRoot = GameObject.Find("GameUI");
+        if (uiRoot == null) return;
+
+        if (GameOverPanel == null)
+        {
+            Transform gameOverTransform = uiRoot.transform.Find("GameOverPanel");
+            if (gameOverTransform != null)
+                GameOverPanel = gameOverTransform.gameObject;
+        }
+
+        Transform searchRoot = GameOverPanel != null ? GameOverPanel.transform : uiRoot.transform;
+        Transform panelTransform = searchRoot.Find("Panel");
+        Transform resultsRoot = panelTransform != null ? panelTransform : searchRoot;
+
+        if (finalScoreText == null)
+        {
+            Transform scoreTransform = resultsRoot.Find("Your Score");
+            if (scoreTransform == null)
+                scoreTransform = resultsRoot.Find("TotalScoreText");
+
+            if (scoreTransform != null)
+                finalScoreText = scoreTransform.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (finalMaximumSpeedText == null)
+        {
+            Transform maxSpeedTransform = resultsRoot.Find("MaximumSpeed");
+            if (maxSpeedTransform == null)
+                maxSpeedTransform = resultsRoot.Find("TotalDistanceText");
+
+            if (maxSpeedTransform != null)
+                finalMaximumSpeedText = maxSpeedTransform.GetComponent<TextMeshProUGUI>();
+        }
+
+        if (tryAgainButton == null)
+        {
+            Transform buttonsTransform = resultsRoot.Find("Buttons");
+            Transform tryAgainTransform = buttonsTransform != null
+                ? buttonsTransform.Find("TryAgainButton")
+                : resultsRoot.Find("TryAgainButton");
+
+            if (tryAgainTransform != null)
+                tryAgainButton = tryAgainTransform.GetComponent<Button>();
+        }
+
+        Transform starsRoot = searchRoot.Find("STARS");
+        if (starsRoot == null)
+        {
+            Transform backgroundTransform = searchRoot.Find("background");
+            if (backgroundTransform != null)
+                starsRoot = backgroundTransform.Find("STARS");
+        }
+
+        if (starsRoot != null)
+        {
+            if (arrowStar == null)
+            {
+                Transform arrowStarTransform = starsRoot.Find("STAR");
+                if (arrowStarTransform != null)
+                    arrowStar = arrowStarTransform.gameObject;
+            }
+
+            if (trafficStar == null)
+            {
+                Transform trafficStarTransform = starsRoot.Find("STAR (1)");
+                if (trafficStarTransform != null)
+                    trafficStar = trafficStarTransform.gameObject;
+            }
+
+            if (speedStar == null)
+            {
+                Transform speedStarTransform = starsRoot.Find("STAR (2)");
+                if (speedStarTransform != null)
+                    speedStar = speedStarTransform.gameObject;
+            }
+        }
+    }
+
+    private void AutoAssignHudIcons()
+    {
+        GameObject uiRoot = GameObject.Find("GameUI");
+        if (uiRoot == null) return;
+
+        if (SpeedIcon == null)
+        {
+            Transform speedIconTransform = uiRoot.transform.Find("SpeedIcon");
+            if (speedIconTransform != null)
+                SpeedIcon = speedIconTransform.gameObject;
+        }
+
+        if (DistanceIcon == null)
+        {
+            Transform distanceIconTransform = uiRoot.transform.Find("DistanceIcon");
+            if (distanceIconTransform != null)
+                DistanceIcon = distanceIconTransform.gameObject;
+        }
+
+        if (ScoreIcon == null)
+        {
+            Transform scoreIconTransform = uiRoot.transform.Find("ScoreIcon");
+            if (scoreIconTransform != null)
+                ScoreIcon = scoreIconTransform.gameObject;
+        }
     }
 
     private Image FindImage(Transform parent, string objectName)
@@ -347,5 +501,30 @@ public class UIManager : MonoBehaviour
         image.enabled = isActive;
         if (image.gameObject.activeSelf != isActive)
             image.gameObject.SetActive(isActive);
+    }
+
+    private void RefreshStars()
+    {
+        AutoAssignGameOverUI();
+        SetObjectState(arrowStar, arrowObjectiveCompleted);
+        SetObjectState(trafficStar, trafficZoneCompletedCorrectly);
+        SetObjectState(speedStar, speedZoneCompletedCorrectly);
+    }
+
+    private void WireTryAgainButton()
+    {
+        AutoAssignGameOverUI();
+
+        if (tryAgainButton == null) return;
+
+        tryAgainButton.onClick.RemoveListener(TryAgain);
+        tryAgainButton.onClick.AddListener(TryAgain);
+    }
+
+    private void SetObjectState(GameObject target, bool isActive)
+    {
+        if (target == null) return;
+
+        target.SetActive(isActive);
     }
 }
