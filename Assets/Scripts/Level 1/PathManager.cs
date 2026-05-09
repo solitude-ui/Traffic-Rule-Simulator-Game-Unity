@@ -9,14 +9,23 @@ public class PathManager : MonoBehaviour
     [Header("Player Detection")]
     [SerializeField] private string playerTag = "Player";
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip arrowCollectSound;
+    [SerializeField] [Range(0f, 1f)] private float collectVolume = 1f;
+
     private int currentIndex;
     private ArrowIndicator activeArrow;
+    private AudioSource audioSource;          // ← added
 
     public bool IsPathComplete => HasValidPath() && currentIndex >= waypoints.Length;
     public event Action PathCompleted;
 
     private void Start()
     {
+        // Auto-create an AudioSource so no manual setup needed
+        audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.playOnAwake = false;
+
         if (!HasValidPath())
         {
             Debug.LogWarning("PathManager: Assign at least 1 waypoint. Add an ArrowIndicator child under each waypoint you want to collect.", this);
@@ -29,6 +38,9 @@ public class PathManager : MonoBehaviour
 
     public void OnArrowCollected()
     {
+        // ✅ Play sound when arrow is collected
+        PlayCollectSound();
+
         currentIndex++;
 
         if (currentIndex < waypoints.Length)
@@ -41,6 +53,14 @@ public class PathManager : MonoBehaviour
         Debug.Log("PathManager: Goal reached!");
         PathCompleted?.Invoke();
     }
+
+    // ─── New private method ───────────────────────────────
+    private void PlayCollectSound()
+    {
+        if (arrowCollectSound == null) return;
+        audioSource.PlayOneShot(arrowCollectSound, collectVolume);
+    }
+    // ─────────────────────────────────────────────────────
 
     public bool IsPlayerCollider(Collider other)
     {

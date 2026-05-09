@@ -182,11 +182,6 @@ WheelCollider:
   m_CorrespondingSourceObject: {fileID: 1057494946909100755, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
   m_PrefabInstance: {fileID: 4901322419198218684}
   m_PrefabAsset: {fileID: 0}
---- !u!146 &7040872221102156090 stripped
-WheelCollider:
-  m_CorrespondingSourceObject: {fileID: 2716459193614891142, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
-  m_PrefabInstance: {fileID: 4901322419198218684}
-  m_PrefabAsset: {fileID: 0}
 --- !u!4 &7114292008388206996 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 2792218741957914664, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}
@@ -209,7 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5ea01a93107b3e648b385184578c0679, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frontLeftWheel: {fileID: 7040872221102156090}
+  frontLeftWheel: {fileID: 5379555015083838319}
   frontRightWheel: {fileID: 471291406188329949}
   rearLeftWheel: {fileID: 8044213223672503368}
   rearRightWheel: {fileID: 5379555015083838319}
@@ -221,6 +216,7 @@ MonoBehaviour:
   breakForce: 1000
   centerOfMassTransform: {fileID: 3889119801564644376}
   carRigidbody: {fileID: 3171052242786648124}
+  uiManager: {fileID: 0}
 --- !u!146 &8044213223672503368 stripped
 WheelCollider:
   m_CorrespondingSourceObject: {fileID: 3145262460232535540, guid: 133308cdb8794744caaef026bde9e1f0, type: 3}

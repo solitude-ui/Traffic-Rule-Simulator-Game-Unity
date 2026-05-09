@@ -65,7 +65,7 @@ public class FinalPointTrigger : MonoBehaviour
         hasTriggeredWin = true;
         uiManager.MarkArrowObjectiveComplete();
         Debug.Log("FinalPointTrigger: Final point reached. Triggering win scenario.", this);
-        uiManager.GameOver();
+        uiManager.GameOver(true);
     }
 
     private void OnDestroy()

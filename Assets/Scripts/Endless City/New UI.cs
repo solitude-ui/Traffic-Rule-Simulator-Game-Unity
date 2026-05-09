@@ -31,6 +31,7 @@ public class NewUI : MonoBehaviour
     private float score = 0f;
     private float maximumSpeed = 0f;
     private Vector3 startPosition;
+    private bool finalResultSent;
 
     void Start()
     {
@@ -87,7 +88,7 @@ public class NewUI : MonoBehaviour
         MaximumSpeedText.text = maximumSpeed.ToString("0") + " km/h";
     }
 
-    public void GameOver()
+    public void GameOver(bool completed = false)
     {
         Time.timeScale = 0f;
 
@@ -99,6 +100,7 @@ public class NewUI : MonoBehaviour
 
         TotalScoreText.text = score.ToString("0");
         TotalDistanceText.text = distance.ToString("0.00") + " km";
+        SendFinalResultOnce(completed);
     }
 
     public void TryAgain()
@@ -107,5 +109,14 @@ public class NewUI : MonoBehaviour
 
         Scene currentScene = SceneManager.GetActiveScene();
         SceneManager.LoadScene(currentScene.name);
+    }
+
+    private void SendFinalResultOnce(bool completed)
+    {
+        if (finalResultSent)
+            return;
+
+        finalResultSent = true;
+        WebGLBridge.SendFinalResult(Mathf.RoundToInt(score), completed);
     }
 }

@@ -65,6 +65,7 @@ public class UIManager : MonoBehaviour
     private bool arrowObjectiveCompleted;
     private bool trafficZoneCompletedCorrectly;
     private bool speedZoneCompletedCorrectly;
+    private bool finalResultSent;
 
     void Awake()
     {
@@ -149,7 +150,7 @@ public class UIManager : MonoBehaviour
         MaximumSpeedText.text = maximumSpeed.ToString("0") + " km/h";
     }
 
-    public void GameOver()
+    public void GameOver(bool completed = false)
     {
         Time.timeScale = 0f;
 
@@ -176,6 +177,7 @@ public class UIManager : MonoBehaviour
             finalMaximumSpeedText.text = maximumSpeed.ToString("0") + "KM/H";
 
         RefreshStars();
+        SendFinalResultOnce(completed);
     }
 
     public void ApplyTrafficViolationPenalty()
@@ -526,5 +528,14 @@ public class UIManager : MonoBehaviour
         if (target == null) return;
 
         target.SetActive(isActive);
+    }
+
+    private void SendFinalResultOnce(bool completed)
+    {
+        if (finalResultSent)
+            return;
+
+        finalResultSent = true;
+        WebGLBridge.SendFinalResult(Mathf.RoundToInt(score), completed);
     }
 }
